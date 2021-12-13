@@ -1,57 +1,25 @@
-﻿using Core.Settings;
-using DataAccess.DataContext.MongoContext.SeedData;
-using Entities;
+﻿using Core.Extension.Repositories;
+using Core.Model.Mongo;
+using Core.Settings;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DataAccess.DataContext.MongoContext
 {
-    public class MongoContext : IMongoContext
+    public class MongoContext<TEntity> : IMongoContextModel<TEntity> where TEntity : class, new()
     {
-        private IMongoDatabase Database { get; set; }
-        public MongoClient MongoClient { get; set; }
-        
-
-        private readonly IConfiguration _configuration;
-
-        public MongoContext(IConfiguration configuration)
+        private readonly IMongoDatabase _database ;
+        public MongoContext(IMongoSettings settings)
         {
-            _configuration = configuration;
-
-           
-
+            var client = new MongoClient(settings.ConnectionString);
+            _database = client.GetDatabase(settings.DatabaseName);
         }
 
-        private void ConfigureMongo()
+        public IMongoCollection<TEntity> GetCollection()
         {
-            if (MongoClient != null)
-            {
-                return;
-            }
-
-            MongoClient = new MongoClient(_configuration["MongoSettings:ConnectionString"]);
-
-            Database = MongoClient.GetDatabase(_configuration["MongoSettings:DatabaseName"]);
-            
-        }
-
-        public IMongoCollection<T> GetCollection<T>(string name)
-        {
-            ConfigureMongo();
-
-            return Database.GetCollection<T>(name);
-          
-          
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
+            return _database.GetCollection<TEntity>(new TEntity().GetCollectionName());
         }
     }
 }

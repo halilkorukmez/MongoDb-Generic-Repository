@@ -1,19 +1,19 @@
+using Core.Extension.Repositories;
+using Core.Model.Mongo;
+using Core.Repositories;
+using Core.Settings;
+using DataAccess.Dal;
 using DataAccess.DataContext.MongoContext;
-using DataAccess.Repositories;
+using Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Service.ProductService;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Api
 {
@@ -32,9 +32,11 @@ namespace Api
 
             services.AddControllers();
 
-            services.AddScoped<IMongoContext, MongoContext>();
-            services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+            services.Configure<MongoSettings>(Configuration.GetSection(nameof(MongoSettings)));
+            services.AddSingleton<IMongoSettings>(sp => sp.GetRequiredService<IOptions<MongoSettings>>().Value);
+            services.AddScoped<IMongoContextModel<Products>, MongoContext<Products>>();
 
+            services.AddScoped<IProductDal, ProductDal>();
             services.AddScoped<IProductService, ProductService>();
 
 

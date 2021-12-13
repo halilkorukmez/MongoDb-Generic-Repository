@@ -14,10 +14,10 @@ namespace Api.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IProductService _productRepository;
-        public ProductController(IProductService productRepository)
+        private readonly IProductService _productService;
+        public ProductController(IProductService productService)
         {
-            _productRepository = productRepository;
+            _productService = productService;
           
         }
 
@@ -26,7 +26,7 @@ namespace Api.Controllers
         [ProducesResponseType(typeof(Products), (int)HttpStatusCode.Created)]
         public async Task<ActionResult<Products>> AddProducts([FromBody] Products products)
         {
-            await _productRepository.AddAsync(products);
+            await _productService.AddAsync(products);
             return CreatedAtRoute("GetById", new { id = products.Id }, products);
         }
 
@@ -34,7 +34,7 @@ namespace Api.Controllers
         [ProducesResponseType(typeof(Products), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<Products>>> GetAll()
         {
-            var products = await _productRepository.GetAllAsync();
+            var products = await _productService.GetAllAsync();
             return Ok(products);
         }
 
@@ -43,7 +43,7 @@ namespace Api.Controllers
         [ProducesResponseType(typeof(Products), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Products>> GetById(string id)
         {
-            var products = await _productRepository.GetByIdAsync(id);
+            var products = await _productService.GetByIdAsync(id);
             if (products == null)
               return NotFound();
 
@@ -54,7 +54,7 @@ namespace Api.Controllers
         [ProducesResponseType(typeof(Products), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> UpdateProduct(Products products,string id)
         {
-             await _productRepository.UpdateAsync(products,id);
+             await _productService.UpdateAsync(products,id);
             return Ok();
         }
 
@@ -62,7 +62,7 @@ namespace Api.Controllers
         [ProducesResponseType(typeof(Products), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> DeleteProduct(string id)
         {
-            await _productRepository.DeleteAsync( id);
+            await _productService.DeleteAsync( id);
             return Ok();
         }
     }

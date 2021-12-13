@@ -1,4 +1,5 @@
 ﻿using Core.Model;
+using Core.Model.Mongo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
+    [Collection("Products")]
     public class Products : BaseModel
     {
         public string Name { get; set; }
